@@ -32,10 +32,8 @@
     //Get the start_times and end_times
     start_times = (new Date(start_str + " 00:00:00").getTime() / 1000);
     end_times = new Date(end_str + " 00:00:00").getTime() / 1000 + 24 * 60 * 60 - 1;
-    console.log("End time " + end_times);
 
         function truncate(str, maxLength, suffix) {
-        console.log("truncate  " + str);
         if (str.length > maxLength) {
             str = str.substring(0, maxLength + 1);
             str = str.substring(0, Math.min(str.length, str.lastIndexOf(" ")));
@@ -44,6 +42,23 @@
         return str;
     }
 
+    Date.prototype.addDays = function(days) {
+        var dat = new Date(this.valueOf())
+        dat.setDate(dat.getDate() + days);
+        return dat;
+    }
+
+    function getDates(startDate, stopDate) {
+        var dateArray = new Array();
+        var currentDate = startDate;
+        while (currentDate <= stopDate) {
+            dateArray.push( new Date (currentDate) )
+            currentDate = currentDate.addDays(1);
+        }
+        return dateArray;
+    }
+
+
     function draw_line(data) {
     var margin = {
             top: 20,
@@ -51,9 +66,8 @@
             bottom: 0,
             left: 20
         },
-        width = window.innerWidth;
-
-        height = window.innerHeight;
+        width = 1000;
+        height = 500;
 
     //Map start_date and end_date to the two date strings.
     var start_date = new Date(start_str),
@@ -64,13 +78,13 @@
 
     //define a time scale with the range 0 - width and map the domain start_date,end_date on it
     var x = d3.time.scale()
-        .domain([start_date,end_date])
+        .domain([start_date, end_date])
         .range([0, width]);
 
     //create axis with the above defined time scale and orient it on top(x axis on top).
     var xAxis = d3.svg.axis()
         .scale(x)
-        .ticks(7)
+        .tickValues(getDates(start_date, end_date))
         .orient("top");
 
     xAxis.tickFormat(date_format());
@@ -86,12 +100,10 @@
         //Append the svg axis
         svg.append("g")
             .attr("class", "x axis")
-            .attr("transform", "translate(0," + 0 + ")")
+            // .attr("transform", "translate(0," + top + ")")
             .call(xAxis);
 
         for (var j = 0; j < data.length; j++) {
-            console.log("data.length " + data.length + " j " + j);
-            console.log("data[j].values " + data[j].values[0].change);
             var g = svg.append("g").attr("class", "journal");
 
             var circles = g.selectAll("circle")
@@ -114,11 +126,12 @@
 
             circles
                 .attr("cx", function(d, i) {
-                    return xScale(new Date(d.x));
+                    console.log(new Date(d.x));
+                    return x(new Date(d.x));
                 })
                 .attr("cy", j * 20 + 20)
                 .attr("r", function(d) {
-                    console.log(d);
+                    // console.log(d);
                     //This is to avoid the -infinity error.
                     if(d.change == 0)
                         return 1;
@@ -132,11 +145,12 @@
             text
                 .attr("y", j * 20 + 25)
                 .attr("x", function(d, i) {
-                    return xScale(new Date(d.x)) - 5;
+                    // console.log('d', d);
+                    return x(new Date(d.x)) - 5;
                 })
                 .attr("class", "value")
                 .text(function(d) {
-                    console.log(d);
+                    // console.log(d);
                     return d.change;
                 })
                 .style("fill", function(d) {

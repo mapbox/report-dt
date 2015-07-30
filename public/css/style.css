@@ -1,22 +1,11 @@
-body {
-	overflow-y: scroll;
-}
-text {
-	font: 12px sans-serif;
-}
 svg {
 	display: block;
 }
+
 .container_way, .container_line {
 	margin-top: 30px;
 }
 
-#chart_line {
-	height: 500px;
-}
-#chart_line_changeset {
-	height: 300px;
-}
 .date-form {
 	margin: 10px;
 }
@@ -74,6 +63,18 @@ label.control-label span {
 }
 
 /*hide x scale*/
-.nv-x .tick line {
+/*.nv-x .tick line {
 	display: none;
+}
+
+*/
+.axis text {
+  font: 10px sans-serif;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
 }
