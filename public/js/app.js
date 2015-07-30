@@ -388,8 +388,8 @@
         } else {
             switch (type) {
                 case 'h':
-                    if ((end_times - start_times) > 60 * 24 * 3600) {
-                        $("#span-warning").text(' You selected request per hour, this is not possible if there is more than two months on range, please select other range');
+                    if ((end_times - start_times) > 8 * 24 * 3600) {
+                        $("#span-warning").text(' This is a weekly edit report. Please select a 7 day duration or lesser.');
                         $('#error-warning').show();
                         setTimeout(function() {
                             $('#error-warning').hide();
@@ -398,6 +398,14 @@
                     }
                     break;
                 case 'd':
+                    if ((end_times - start_times) > 8 * 24 * 3600) {
+                        $("#span-warning").text(' This is a weekly edit report. Please select a 7 day duration or lesser.');
+                        $('#error-warning').show();
+                        setTimeout(function() {
+                            $('#error-warning').hide();
+                        }, 8000);
+                        return null;
+                    }
                     // if ((end_times - start_times) > 24 * 60 * 60 * 30 * 3) {
                     //     return null;
                     // }
