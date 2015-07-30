@@ -28,44 +28,145 @@
         dates.push(start_str);
         dates.push(end_str);
     }
+
+    //Get the start_times and end_times
     start_times = (new Date(start_str + " 00:00:00").getTime() / 1000);
     end_times = new Date(end_str + " 00:00:00").getTime() / 1000 + 24 * 60 * 60 - 1;
+    console.log("End time " + end_times);
+
+        function truncate(str, maxLength, suffix) {
+        console.log("truncate  " + str);
+        if (str.length > maxLength) {
+            str = str.substring(0, maxLength + 1);
+            str = str.substring(0, Math.min(str.length, str.lastIndexOf(" ")));
+            str = str + suffix;
+        }
+        return str;
+    }
 
     function draw_line(data) {
-        console.log(data);
-        var chart;
-        var nv_line = nv;
-        nv_line.addGraph(function() {
-            var chart;
-            chart = nv_line.models.lineChart().useInteractiveGuideline(true);
-            chart
-                .x(function(d, i) {
-                    return d.x;
+    var margin = {
+            top: 20,
+            right: 200,
+            bottom: 0,
+            left: 20
+        },
+        width = window.innerWidth;
+
+        height = window.innerHeight;
+
+    //Map start_date and end_date to the two date strings.
+    var start_date = new Date(start_str),
+        end_date = new Date(end_str);
+
+    //decides colours of the circles.
+    var c = d3.scale.category20c();
+
+    //define a time scale with the range 0 - width and map the domain start_date,end_date on it
+    var x = d3.time.scale()
+        .domain([start_date,end_date])
+        .range([0, width]);
+
+    //create axis with the above defined time scale and orient it on top(x axis on top).
+    var xAxis = d3.svg.axis()
+        .scale(x)
+        .ticks(7)
+        .orient("top");
+
+    xAxis.tickFormat(date_format());
+
+    //Append the svg to the body
+    var svg = d3.select("#chart_line svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .style("margin-left", margin.left + "px")
+        .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+        //Append the svg axis
+        svg.append("g")
+            .attr("class", "x axis")
+            .attr("transform", "translate(0," + 0 + ")")
+            .call(xAxis);
+
+        for (var j = 0; j < data.length; j++) {
+            console.log("data.length " + data.length + " j " + j);
+            console.log("data[j].values " + data[j].values[0].change);
+            var g = svg.append("g").attr("class", "journal");
+
+            var circles = g.selectAll("circle")
+                .data(data[j].values)
+                .enter()
+                .append("circle");
+
+            var text = g.selectAll("text")
+                .data(data[j].values)
+                .enter()
+                .append("text");
+
+            var xScale = d3.time.scale()
+            .domain([start_date, end_date])
+            .range([0, width]);
+
+            var rScale = d3.scale.log()
+            .domain([1, 10])
+            .range([0, 2]);
+
+            circles
+                .attr("cx", function(d, i) {
+                    return xScale(new Date(d.x));
+                })
+                .attr("cy", j * 20 + 20)
+                .attr("r", function(d) {
+                    console.log(d);
+                    //This is to avoid the -infinity error.
+                    if(d.change == 0)
+                        return 1;
+                    else
+                        return rScale(d.y);
+                })
+                .style("fill", function(d) {
+                    return c(j);
                 });
-            chart.margin({
-                right: 63,
-                left: 35
-            });
-            chart.xAxis
-                .axisLabel('Date')
-                .tickFormat(
-                    date_format()
-                );
-            date_xaxis = _.uniq(date_xaxis);
-            if (date_xaxis.length > 10) {
-                date_xaxis = _.each(date_xaxis, function(v, k) {
-                    return k % 2 == 0;
-                });
-            }
-            chart.xAxis.tickValues(date_xaxis);
-            chart.yAxis.tickFormat(d3.format(',.H'));
-            d3.select('#chart_line svg')
-                .datum(data)
-                .transition().duration(500)
-                .call(chart);
-            nv_line.utils.windowResize(chart.update);
-            return chart;
-        });
+
+            text
+                .attr("y", j * 20 + 25)
+                .attr("x", function(d, i) {
+                    return xScale(new Date(d.x)) - 5;
+                })
+                .attr("class", "value")
+                .text(function(d) {
+                    console.log(d);
+                    return d.change;
+                })
+                .style("fill", function(d) {
+                    return c(j);
+                })
+                .style("display", "none");
+
+            g.append("text")
+                .attr("y", j * 20 + 25)
+                .attr("x", width + 20)
+                .attr("class", "label")
+                .text(truncate(data[j].key, 30, "..."))
+                .style("fill", function(d) {
+                    return c(j);
+                })
+                .on("mouseover", mouseover)
+                .on("mouseout", mouseout);
+        };
+
+        function mouseover(p) {
+            var g = d3.select(this).node().parentNode;
+            d3.select(g).selectAll("circle").style("display", "none");
+            d3.select(g).selectAll("text.value").style("display", "block");
+        }
+
+        function mouseout(p) {
+            var g = d3.select(this).node().parentNode;
+            d3.select(g).selectAll("circle").style("display", "block");
+            d3.select(g).selectAll("text.value").style("display", "none");
+        }
         $('#chart_line').removeClass("loading");
     }
 
