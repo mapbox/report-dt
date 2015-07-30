@@ -1,8 +1,8 @@
 (function(settings) {
-    var start_str = '';
-    var end_str = '';
-    var start_times = 0;
-    var end_times = 0;
+    var start_str = '';//start_date
+    var end_str = '';//end_date
+    var start_times = 0;//start_time
+    var end_times = 0;//end_time
     var months = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
     var date_xaxis = [];
     var json_obj = null;
@@ -10,12 +10,16 @@
     var type = null;
     var dates = [];
     var today = new Date();
+
+    //Dates selected from "From" and "To" - URL eg: http://localhost:3000/#d&2015-07-20&2015-07-28
     if (url.indexOf("#") != -1 && url.indexOf("&") != -1) {
-        dates = url.split('#')[1].split('&');
-        type = dates[0];
-        start_str = dates[1];
-        end_str = dates[2];
-    } else {
+        dates = url.split('#')[1].split('&'); //=d&2015-07-20&2015-07-28
+        type = dates[0]; //=d
+        start_str = dates[1]; //2015-07-20
+        end_str = dates[2]; //2015-07-28
+    }
+    //Dates not selected from "From" and "To" - default to "currentDate" and "currentDate - 8"
+    else {
         type = 'd';
         end_str = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
         today.setDate(today.getDate() - 8);
@@ -335,14 +339,20 @@
             dataType: "json",
             url: settings.host + type + '&' + start_times + '&' + end_times,
             success: function(json) {
+                //json - set of JSON values for each user whose name and details({"x":"date","y":"no-of-objects-modified"(for "OBJECTS MODIFIED" graph - the first graph) ,"change":"no-of-changesets"(for "CHANGESETS" graph - the second graph)}) are represented in the graph.
                 date_xaxis = [];
                 json_obj = [];
                 _.each(json, function(val, key) {
-                    val.values_obj = null;
+                    /*val iterates through each item in the json object(eg: {"values":[{"x":"2015-07-25","y":0,"change":0},{"x":"2015-07-26","y":0,"change":0},{"x":"2015-07-27","y":0,"change":0},{"x":"2015-07-28","y":0,"change":0}],"key":"Rub21","color":"#0171C5","iduser":510836}). key iterates from 0 upwards*/
+                    val.values_obj = null; // BUG(?) - is always undefined before this declaration.
+                    //type defaults to type global( 'd','h','m','y')
                     switch (type) {
+                            //BUG(?) - Hour/Day/Month/Year Values are being pushed for each user for the same time interval?(because of the _.each on line 347 and the _.each for each switch case)
                         case 'h':
                             //per hour
                             _.each(val.values, function(v, k) {
+                                //v is each item in val.values( eg of val.values: {"x":"2015-07-25","y":0,"change":0})
+                                //split the val.values[0].x by '-', val.values[1].x by '-' and so on. val.values[1].x is the date under process,so the date gets split into date, month and year and store in 'd'
                                 var d = val.values[k].x.split('-');
                                 var date_timestamp = Date.UTC(d[0],
                                     parseInt(d[1]) - 1,
@@ -356,6 +366,8 @@
                         case 'd':
                             //per day
                             _.each(val.values, function(v, k) {
+                                //v is each item in val.values( eg of val.values: {"x":"2015-07-25","y":0,"change":0})
+                                //split the val.values[0].x by '-', val.values[1].x by '-' and so on. val.values[1].x is the date under process,so the date gets split into date, month and year and store in 'd'
                                 var d = val.values[k].x.split('-');
                                 var date_timestamp = Date.UTC(parseInt(d[0]),
                                     parseInt(d[1]) - 1,
@@ -367,6 +379,8 @@
                             break;
                         case 'm':
                             _.each(val.values, function(v, k) {
+                                //v is each item in val.values( eg of val.values: {"x":"2015-07-25","y":0,"change":0})
+                                //split the val.values[0].x by '-', val.values[1].x by '-' and so on. val.values[1].x is the date under process,so the date gets split into date, month and year and store in 'd'
                                 var d = val.values[k].x.split('-');
                                 var date_timestamp = Date.UTC(d[0],
                                     parseInt(d[1]) - 1, 12, 0, 0);
@@ -377,6 +391,8 @@
                             break;
                         case 'y':
                             _.each(val.values, function(v, k) {
+                                //v is each item in val.values( eg of val.values: {"x":"2015-07-25","y":0,"change":0})
+                                //split the val.values[0].x by '-', val.values[1].x by '-' and so on. val.values[1].x is the date under process,so the date gets split into date, month and year and store in 'd'
                                 var d = val.values[k].x.split('-');
                                 var date_timestamp = Date.UTC(d[0], 0, 2, 0, 0);
                                 var utc = new Date(date_timestamp);
@@ -387,7 +403,9 @@
                     }
                     json_obj.push(val);
                 });
+                //first graph
                 draw_line(json_obj);
+                //second graph
                 draw_line_changeset(JSON.parse(JSON.stringify(json_obj)));
             }
         });
