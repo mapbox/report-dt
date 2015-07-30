@@ -48,17 +48,6 @@
         return dat;
     }
 
-    function getDates(startDate, stopDate) {
-        var dateArray = new Array();
-        var currentDate = startDate;
-        while (currentDate <= stopDate) {
-            dateArray.push( new Date (currentDate) )
-            currentDate = currentDate.addDays(1);
-        }
-        return dateArray;
-    }
-
-
     function draw_line(data) {
     var margin = {
             top: 20,
@@ -77,14 +66,14 @@
     var c = d3.scale.category20c();
 
     //define a time scale with the range 0 - width and map the domain start_date,end_date on it
-    var x = d3.time.scale()
+    var x = d3.time.scale.utc()
         .domain([start_date, end_date])
         .range([0, width]);
 
     //create axis with the above defined time scale and orient it on top(x axis on top).
     var xAxis = d3.svg.axis()
         .scale(x)
-        .tickValues(getDates(start_date, end_date))
+        .ticks(7)
         .orient("top");
 
     xAxis.tickFormat(date_format());
@@ -126,7 +115,7 @@
 
             circles
                 .attr("cx", function(d, i) {
-                    console.log(new Date(d.x));
+                    // console.log(new Date(d.x));
                     return x(new Date(d.x));
                 })
                 .attr("cy", j * 20 + 20)
@@ -185,7 +174,7 @@
     }
 
     function draw_line_changeset(data) {
-        console.log(data);
+        // console.log(data);
         _.each(data, function(val, key) {
             _.each(val.values, function(v) {
                 v.y = v.change;
