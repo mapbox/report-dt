@@ -116,7 +116,13 @@
             circles
                 .attr("cx", function(d, i) {
                     // console.log(new Date(d.x));
+                    // console.log("cx " + x(new Date(d.x)))
                     return x(new Date(d.x));
+                })
+                .attr('class',function(d, i) {
+                    // console.log(new Date(d.x));
+                    // console.log("cx " + x(new Date(d.x)))
+                    return 'circleColumn' + i;
                 })
                 .attr("cy", j * 20 + 20)
                 .attr("r", function(d) {
@@ -138,6 +144,9 @@
                     return x(new Date(d.x)) - 5;
                 })
                 .attr("class", "value")
+                .attr("class", function(d, i) {
+                    return 'circleTextColumn' + i;
+                })
                 .text(function(d) {
                     // console.log(d);
                     return d.change;
@@ -157,7 +166,26 @@
                 })
                 .on("mouseover", mouseover)
                 .on("mouseout", mouseout);
+
+            d3.select('.xAxis')
+                .selectAll('.tick.major')
+                .on('mouseover',tickMouseover)
+
+            d3.select('.xAxis')
+                .selectAll('.tick.major')
+                .on('mouseout',tickMouseout)
+
         };
+
+        function tickMouseover(p, i){
+            d3.selectAll(".circleColumn" + i).style("display", "none");
+            d3.selectAll(".circleTextColumn" + i).style("display", "block");
+        }
+
+        function tickMouseout(p, i){
+            d3.selectAll(".circleColumn" + i).style("display", "block");
+            d3.selectAll(".circleTextColumn" + i).style("display", "none");
+        }
 
         function mouseover(p) {
             var g = d3.select(this).node().parentNode;
