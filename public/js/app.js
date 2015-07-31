@@ -143,9 +143,8 @@
                     // console.log('d', d);
                     return x(new Date(d.x)) - 5;
                 })
-                .attr("class", "value")
                 .attr("class", function(d, i) {
-                    return 'circleTextColumn' + i;
+                    return 'circleTextColumn' + i + " value";
                 })
                 .text(function(d) {
                     // console.log(d);
