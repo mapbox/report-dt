@@ -14,12 +14,12 @@ module.exports = function(arr, users, done) {
 	console.log('Process file :' + fileSrc);
 
 
-	var file = new osmium.File(fileSrc);
-	var reader = new osmium.Reader(file);
+	//var file = new osmium.File(fileSrc);
+	var reader = new osmium.Reader(fileSrc);
 	var handler = new osmium.Handler();
 	//WAY
 	handler.on('way', function(way) {
-		obj.osmdate = way.timestamp - way.timestamp % 1000;
+		obj.osmdate = way.timestamp_seconds_since_epoch - way.timestamp_seconds_since_epoch % 1000;
 		if (users.hasOwnProperty(way.uid)) {
 			++users[way.uid].osm_way;
 			users[way.uid].changeset.push(way.changeset);
@@ -39,7 +39,7 @@ module.exports = function(arr, users, done) {
 			users[relation.uid].changeset.push(relation.changeset);
 		}
 	});
-	reader.apply(handler);
+	osmium.apply(reader, handler);
 	_.each(users, function(val, key) {
 		val.changeset = _.size(_.uniq(val.changeset));
 	});

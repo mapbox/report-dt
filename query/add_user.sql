@@ -20,7 +20,7 @@ SELECT add_user(146675,'geohacker','666600',true);
 SELECT add_user(2905914,'pratikyadav','00f2ff',true);
 SELECT add_user(2847988,'jinalfoflia','ff6a6a',true);
 SELECT add_user(2835928,'Nikhil Prabhakar U','FF8A00',true);
-SELECT add_user(2985232,'AarthyKC','#666699',true);
+SELECT add_user(2985232,'AarthyKC','666699',true);
 
 --UPDATE osm_user
 --   SET color= '666600'
