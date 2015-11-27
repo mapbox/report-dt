@@ -53,7 +53,7 @@
             },
             //SVG width and height
             width = 1000,
-            height = 500;
+            height = 600;
 
         //Map startDate and endDate to the two date strings.
         var startDate = new Date(startDateString),
