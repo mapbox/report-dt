@@ -43,7 +43,7 @@
         return str;
     }
 
-    function drawGraph(whichGraph, data){
+    function drawGraph(whichGraph, data) {
         //SVG margins
         var margin = {
                 top: 20,
@@ -330,7 +330,6 @@
               }
             },
             onClose: function (selectedDate) {
-                if ($(window.event.srcElement).hasClass('ui-datepicker-close')) {
                     if (type === 'm') {
                         var m = parseInt($('#ui-datepicker-div .ui-datepicker-month :selected').val());
                         var y = parseInt($('#ui-datepicker-div .ui-datepicker-year :selected').val());
@@ -341,7 +340,6 @@
                         $(this).datepicker('setDate', new Date(y, '01', '01'));
                         draw();
                     }
-                }
                 $('.to').datepicker('option', 'minDate', startDateString);
             },
             yearRange: '2015:' + today.getFullYear()
@@ -367,7 +365,6 @@
                 }
             },
             onClose: function(selectedDate) {
-                if ($(window.event.srcElement).hasClass('ui-datepicker-close')) {
                     if (type === 'm') {
                         var m = parseInt($('#ui-datepicker-div .ui-datepicker-month :selected').val());
                         var y = parseInt($('#ui-datepicker-div .ui-datepicker-year :selected').val());
@@ -378,7 +375,6 @@
                         $(this).datepicker('setDate', new Date(y, '01', '01'));
                         draw();
                     }
-                }
             $('.from').datepicker('option', 'maxDate', endDateString);
             },
             yearRange: '2015:' + today.getFullYear()
