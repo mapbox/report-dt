@@ -28,6 +28,7 @@ SELECT add_user(261012,'sanjayb','996600',true);
 SELECT add_user(3029661,'saikabhi','003300',true);
 SELECT add_user(2985232,'aarthy','666699',true);
 SELECT add_user(1087876,'bkowshik','666699',true);
+SELECT add_user(1597155,'poornibadrinath','5faeb0',true);
 --UPDATE osm_user
 --   SET color= '666600'
 -- WHERE iduser=0000;
