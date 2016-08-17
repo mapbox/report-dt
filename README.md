@@ -45,7 +45,7 @@ SELECT add_user(589596,'lxbarth','FFFF00',true);
 
 Or use Mapbox data team users included in the project:
 
-    psql dbstatistic -f query/add_user.sql
+    npm run addUsers
 
 ### 3. Load data
 

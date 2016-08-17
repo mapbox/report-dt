@@ -12,6 +12,8 @@
     "cors": "^2.4.1",
     "express": "^4.0.0",
     "forever": "^0.15.1",
+    "fs": "0.0.2",
+    "mapbox-data-team": "^1.1.2",
     "node-crontab": "0.0.8",
     "optimist": "^0.6.1",
     "osmium": "*",
@@ -24,7 +26,8 @@
     "start": "npm run server && npm run load",
     "server": "./node_modules/.bin/forever start server/server.js && ./node_modules/.bin/forever list",
     "load": "./node_modules/.bin/forever start load/load.js --num_file=937 --num_directory=28 --pguser=$ReportDTDatabaseUsername --pgpassword=$ReportDTDatabasePassword --pgdatabase=$ReportDTDatabaseDatabaseName && ./node_modules/.bin/forever list",
-    "stop": "./node_modules/.bin/forever stop server/server.js && ./node_modules/.bin/forever stop load/load.js"
+    "stop": "./node_modules/.bin/forever stop server/server.js && ./node_modules/.bin/forever stop load/load.js",
+    "addUsers": "node query/add_user.js && psql dbstatistic -f query/add_user.sql"
   },
   "repository": {
     "type": "git",
