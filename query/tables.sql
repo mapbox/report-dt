@@ -11,6 +11,11 @@ CREATE TABLE osm_obj(
 	osmdate INTEGER NOT NULL PRIMARY KEY
 );
 
+CREATE TABLE osm_objjson(
+	osmdate INTEGER NOT NULL PRIMARY KEY
+);
+
+
 CREATE OR REPLACE FUNCTION addcol_user(_columname varchar)
 RETURNS VOID
 AS $$
@@ -25,6 +30,9 @@ begin
 	if(_flag is null ) then 
 		EXECUTE 'ALTER TABLE osm_obj ADD COLUMN ' || _uo || ' SMALLINT;';
 		EXECUTE 'ALTER TABLE osm_obj ADD COLUMN ' || _uc || ' SMALLINT;';
+		--Create new colum
+		EXECUTE 'ALTER TABLE osm_objjson ADD COLUMN ' || _uo || ' jsonb;';
+		
 		_flag = _columname ||' Was created';
 	else
 		_flag = _columname ||' Already exist';
