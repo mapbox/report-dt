@@ -11,6 +11,7 @@
     "async": "^1.2.1",
     "cors": "^2.4.1",
     "express": "^4.0.0",
+    "mapbox-data-team": "^1.1.5",
     "node-crontab": "0.0.8",
     "optimist": "^0.6.1",
     "osmium": "*",

@@ -22,7 +22,7 @@ database.select_users = function(client, done) {
 	});
 };
 
-database.insert = function(client, obj) {
+database.insert = function(client, obj, numfile) {
 	var flag = true;
 	var query_exists = {
 		text: 'SELECT EXISTS(SELECT osmdate FROM osm_obj where osmdate = $1);',
@@ -36,18 +36,49 @@ database.insert = function(client, obj) {
 				text: "",
 				values: []
 			};
+			var query_insertJSON = {
+				text: "",
+				values: []
+			};
+
+			var jsonobj = {
+				tags: val.tags,
+				ways: val.osm_way,
+				date: obj.osmdate,
+				nodes: val.osm_node,
+				user: val.osm_user,
+				changesets: val.changeset,
+				relations: val.osm_relation,
+				total: num_obj,
+				file: 'hour/000/' + numfile.join().replace(',', '/')
+			};
+
+			// JSON.parse(JSON.stringify(val));
 			if (flag) {
 				query_insert.text = "UPDATE osm_obj SET uo_" + key + " = $1 , uc_" + key + " = $2 WHERE osmdate = $3";
 				query_insert.values.push(num_obj, val.changeset, obj.osmdate);
+				//update json
+				query_insertJSON.text = "UPDATE osm_objjson SET uo_" + key + " = ($1::JSONB) WHERE osmdate = $2";
+				query_insertJSON.values.push(JSON.stringify(jsonobj), obj.osmdate);
 			} else {
 				query_insert.text = "INSERT INTO osm_obj(osmdate, uo_" + key + ", uc_" + key + ") VALUES ($1,$2,$3)";
 				query_insert.values.push(obj.osmdate, num_obj, val.changeset);
+				//insert json
+				query_insertJSON.text = "INSERT INTO osm_objjson(osmdate, uo_" + key + ") VALUES ($1,$2::JSONB)";
+				query_insertJSON.values.push(obj.osmdate, JSON.stringify(jsonobj));
 				flag = true;
 			}
+			// console.log('==========================================');
+			// console.log(query_insertJSON);
 			client.query(query_insert, function(err, result) {
 				if (err) {
 					console.log("error en insertar" + err);
 				}
+				client.query(query_insertJSON, function(err, result) {
+					if (err) {
+						console.log("error en insertar JOSN" + err);
+					}
+				});
 			});
 		});
 	});

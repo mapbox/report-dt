@@ -6,6 +6,7 @@ module.exports = function() {
     osm_node: 0,
     osm_way: 0,
     osm_relation: 0,
-    changeset: []
+    changeset: [],
+    tags:{}
   };
 };

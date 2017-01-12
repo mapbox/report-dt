@@ -110,6 +110,53 @@ module.exports = function() {
 		}
 	});
 
+	app.get('/json/:date', function(req, res) {
+		try {
+			var date = (req.params.date + '').split('&');
+			var array_objs = [];
+			var userObj = {};
+			var query_obj = {
+				text: 'SELECT substring(to_timestamp(osmdate)::text,0,$1) as osm_date',
+				values: [type[date[0]]]
+			};
+			var query_user = {
+				text: 'SELECT iduser, osmuser, color, estado FROM osm_user WHERE estado = $1',
+				values: [true]
+			};
+			var main_query = client.query(query_user, function(error, result) {
+				if (error) {
+					res.send('Error 404: No quote found');
+					res.end();
+				} else {
+					for (var i = 0; i < result.rows.length; i++) {
+						var iduser = result.rows[i].iduser;
+						userObj[iduser] = {};
+						query_obj.text += ", uo_" + iduser;
+					}
+				}
+			});
+			main_query.on('end', function(result) {
+				query_obj.text += " FROM osm_objjson WHERE osmdate >= $2 AND osmdate < $3 ORDER BY osm_date";
+				query_obj.values.push(parseInt(date[1]), parseInt(date[2]));
+				client.query(query_obj, function(error, result) {
+					if (error) {
+						console.log('Error on request parameter: ' + date[1] + ', ' + date[2]);
+						res.statusCode = 404;
+						res.send('Error 404: No quote found');
+						res.end();
+					} else {
+						res.json(jsonMerge(result, date[0]));
+					}
+				});
+			});
+
+		} catch (e) {
+			res.statusCode = 404;
+			res.send('Error 404: No quote found');
+			res.end();
+		}
+	});
+
 	function value_parameters(date) {
 		console.log('Request Date : ' + new Date() + ' url: ' + url + date);
 		var status = 2;
@@ -137,3 +184,77 @@ module.exports = function() {
 		console.log('Running on ' + url);
 	});
 };
+
+function jsonMerge(result, type) {
+	if (type === 'h') {
+		var hourobj = [];
+		for (var i = 0; i < result.rows.length; i++) {
+			var obj = {};
+			obj.date = result.rows[i].osm_date;
+			delete result.rows[i].osm_date;
+			obj.data = _.values(result.rows[i]);
+			hourobj.push(obj);
+		}
+		return hourobj;
+	} else if (type === 'd') {
+		var dayobj = [];
+		var day = {};
+		for (var i = 0; i < result.rows.length; i++) {
+			if (day[result.rows[i].osm_date]) {
+				day[result.rows[i].osm_date].push(result.rows[i]);
+			} else {
+				day[result.rows[i].osm_date] = [result.rows[i]];
+			}
+		}
+		var dayusers = [];
+		_.each(day, function(v, k) {
+			dayusers.push({
+				date: k,
+				data: _.values(countperuser(v)),
+			});
+		});
+		return dayusers;
+	}
+}
+
+
+function countperuser(objperday) {
+	var objPerUser = {};
+	_.each(objperday, function(val, key) {
+		_.each(val, function(v, k) {
+			if (k !== 'osm_date') {
+				if (objPerUser[k]) {
+					objPerUser[k] = countTags(objPerUser[k], v);
+				} else {
+					objPerUser[k] = v;
+				}
+			}
+		});
+	});
+	return objPerUser;
+}
+
+function countTags(a, b) {
+	var ab = {};
+	a.total = a.total + b.total;
+	a.nodes = a.nodes + b.nodes;
+	a.ways = a.ways + b.ways;
+	a.relations = a.relations + b.relations;
+	a.changesets = a.changesets + b.changesets;
+	_.each(b.tags, function(val, key) {
+		if (a[key]) {
+			_.each(val, function(v, k) {
+				if (a[key][k]) {
+					a[key][k] = a[key][k] + v;
+				} else {
+					a[key][k] = v;
+				}
+			});
+		} else {
+			a[key] = val;
+		}
+	});
+	delete a.file;
+	delete a.date;
+	return a;
+}
