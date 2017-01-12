@@ -196,7 +196,7 @@ function jsonMerge(result, type) {
 			hourobj.push(obj);
 		}
 		return hourobj;
-	} else if (type === 'd') {
+	} else if (type === 'd' || type === 'm' || type === 'y') {
 		var dayobj = [];
 		var day = {};
 		for (var i = 0; i < result.rows.length; i++) {
@@ -216,7 +216,6 @@ function jsonMerge(result, type) {
 		return dayusers;
 	}
 }
-
 
 function countperuser(objperday) {
 	var objPerUser = {};
