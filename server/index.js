@@ -241,16 +241,16 @@ function countTags(a, b) {
 	a.relations = a.relations + b.relations;
 	a.changesets = a.changesets + b.changesets;
 	_.each(b.tags, function(val, key) {
-		if (a[key]) {
+		if (a.tags[key]) {
 			_.each(val, function(v, k) {
-				if (a[key][k]) {
-					a[key][k] = a[key][k] + v;
+				if (a.tags[key][k]) {
+					a.tags[key][k] = a.tags[key][k] + v;
 				} else {
-					a[key][k] = v;
+					a.tags[key][k] = v;
 				}
 			});
 		} else {
-			a[key] = val;
+			a.tags[key] = val;
 		}
 	});
 	delete a.file;
